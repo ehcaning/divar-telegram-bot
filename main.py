@@ -35,7 +35,7 @@ def extract_each_house(house):
 def send_telegram_message(house):
     url = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage'
     text = f"<b>{house['title']}</b>"+"\n"
-    text = f"<i>{house['district']}</i>"+"\n"
+    text += f"<i>{house['district']}</i>"+"\n"
     text += f"{house['description']}"+"\n\n"
     text += f"https://divar.ir/v/a/{house['token']}"
 
