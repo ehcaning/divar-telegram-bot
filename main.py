@@ -1,11 +1,11 @@
 import requests
 import json
+import os
 
-
-URL = "https://api.divar.ir/v8/web-search/<SEARCH-CONDITIONS-HERE>"
+URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(**os.environ)
 TOKENS = list()
-BOT_TOKEN = '<BOT-TOKEN-HERE>'
-BOT_CHATID = '<CHAT-ID-HERE>'
+BOT_TOKEN = '{BOT_TOKEN}'.format(**os.environ)
+BOT_CHATID = '{BOT_CHATID}'.format(**os.environ)
 
 
 def get_data():
