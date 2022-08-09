@@ -1,15 +1,16 @@
-from config import BOT_CHATID, BOT_TOKEN, SEARCH_CONDITIONS
-
 import datetime
 import json
-import pathlib
-import time
 import logging
+import os
 import random
+import time
+
 import requests
 
+URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(**os.environ)
+BOT_TOKEN = "{BOT_TOKEN}".format(**os.environ)
+BOT_CHATID = "{BOT_CHATID}".format(**os.environ)
 
-URL = f"https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}"
 TOKENS = list()
 
 
@@ -56,15 +57,20 @@ def send_telegram_message(house):
 
 
 def load_tokens():
-    my_path = str(pathlib.Path(__file__).parent.resolve()) + "//"
-    with open(my_path + "tokens.json", "r") as content:
+    token_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "tokens.json"
+    )
+    with open(token_path, "r") as content:
         if content == "":
             return []
         return json.load(content)
 
 
 def save_tokns(tokens):
-    with open("tokens.json", "w") as outfile:
+    token_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "tokens.json"
+    )
+    with open(token_path, "w") as outfile:
         json.dump(tokens, outfile)
 
 
