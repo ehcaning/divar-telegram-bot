@@ -1,21 +1,22 @@
-import requests
-import json
-import os
-import pathlib
-from config import *
+from config import BOT_CHATID, BOT_TOKEN, SEARCH_CONDITIONS
+
 import datetime
+import json
+import pathlib
+import time
+import logging
+import random
+import requests
+
 
 URL = f"https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}"
 TOKENS = list()
-BOT_TOKEN = f"{BOT_TOKEN}"
-BOT_CHATID = f"{BOT_CHATID}"
 
 
 def get_data(page=None):
+    api_url = URL
     if page:
-        api_url = URL + f"&page={page}"
-    else:
-        api_url = URL
+        api_url += f"&page={page}"
     response = requests.get(api_url)
     return response
 
@@ -28,12 +29,12 @@ def get_houses_list(data):
     return data["web_widgets"]["post_list"]
 
 
-def extract_each_house(house):
+def extract_house_data(house):
     data = house["data"]
 
     return {
         "title": data["title"],
-        "description": f'{data["top_description_text"]}  {data["middle_description_text"]}',
+        "description": f'{data["top_description_text"]} \n {data["middle_description_text"]}',
         "district": data["action"]["payload"]["web_info"]["district_persian"],
         "hasImage": data["image_count"] > 0,
         "token": data["token"],
@@ -45,15 +46,12 @@ def send_telegram_message(house):
     text = f"<b>{house['title']}</b>" + "\n"
     text += f"<i>{house['district']}</i>" + "\n"
     text += f"{house['description']}" + "\n"
-    if house["hasImage"]:
-        text += f"<i>تصویر : </i>" + "✅" + "\n\n"
-    else:
-        text += f"<i>تصویر : </i>" + "❌" + "\n\n"
+    text += f'<i>تصویر : </i> {"✅" if house["hasImage"] else "❌"}\n\n'
     text += f"https://divar.ir/v/a/{house['token']}"
     body = {"chat_id": BOT_CHATID, "parse_mode": "HTML", "text": text}
     result = requests.post(url, data=body)
-    if not result.status_code == 200:
-        time.sleep(5)
+    if result.status_code == 429:
+        time.sleep(random.randint(3, 7))
         send_telegram_message(house)
 
 
@@ -93,9 +91,9 @@ def process_data(data, tokens):
 
 
 if __name__ == "__main__":
-    print(datetime.datetime.now())
+    logging.info(datetime.datetime.now())
     tokens = load_tokens()
-    print(len(tokens))
+    logging.info(len(tokens))
     pages = [2, ""]
     for page in pages:
         data = get_data_page(page)
