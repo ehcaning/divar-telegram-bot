@@ -1,15 +1,24 @@
-import requests
+import datetime
 import json
+import logging
 import os
+import random
+import time
+
+import requests
 
 URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(**os.environ)
+BOT_TOKEN = "{BOT_TOKEN}".format(**os.environ)
+BOT_CHATID = "{BOT_CHATID}".format(**os.environ)
+
 TOKENS = list()
-BOT_TOKEN = '{BOT_TOKEN}'.format(**os.environ)
-BOT_CHATID = '{BOT_CHATID}'.format(**os.environ)
 
 
-def get_data():
-    response = requests.get(URL)
+def get_data(page=None):
+    api_url = URL
+    if page:
+        api_url += f"&page={page}"
+    response = requests.get(api_url)
     return response
 
 
@@ -18,63 +27,82 @@ def parse_data(data):
 
 
 def get_houses_list(data):
-    return data['web_widgets']['post_list']
+    return data["web_widgets"]["post_list"]
 
 
-def extract_each_house(house):
-    data = house['data']
+def extract_house_data(house):
+    data = house["data"]
 
     return {
-        'title': data['title'],
-        'description': data['description'],
-        'district': data['district'],
-        'token': data['token'],
+        "title": data["title"],
+        "description": f'{data["top_description_text"]} \n {data["middle_description_text"]}',
+        "district": data["action"]["payload"]["web_info"]["district_persian"],
+        "hasImage": data["image_count"] > 0,
+        "token": data["token"],
     }
 
 
 def send_telegram_message(house):
-    url = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage'
-    text = f"<b>{house['title']}</b>"+"\n"
-    text += f"<i>{house['district']}</i>"+"\n"
-    text += f"{house['description']}"+"\n\n"
+    url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
+    text = f"<b>{house['title']}</b>" + "\n"
+    text += f"<i>{house['district']}</i>" + "\n"
+    text += f"{house['description']}" + "\n"
+    text += f'<i>تصویر : </i> {"✅" if house["hasImage"] else "❌"}\n\n'
     text += f"https://divar.ir/v/a/{house['token']}"
-
-    body = {
-        'chat_id': BOT_CHATID,
-        'parse_mode': 'HTML',
-        'text': text
-    }
-
-    requests.post(url, data=body)
+    body = {"chat_id": BOT_CHATID, "parse_mode": "HTML", "text": text}
+    result = requests.post(url, data=body)
+    if result.status_code == 429:
+        time.sleep(random.randint(3, 7))
+        send_telegram_message(house)
 
 
 def load_tokens():
-    with open("tokens.json", "r") as content:
+    token_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "tokens.json"
+    )
+    with open(token_path, "r") as content:
         if content == "":
             return []
         return json.load(content)
 
 
 def save_tokns(tokens):
-    with open("tokens.json", "w") as outfile:
+    token_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "tokens.json"
+    )
+    with open(token_path, "w") as outfile:
         json.dump(tokens, outfile)
 
 
-if __name__ == "__main__":
-    tokens = load_tokens()
-
-    data = get_data()
+def get_data_page(page=None):
+    data = get_data(page)
     data = parse_data(data)
     data = get_houses_list(data)
+    data = data[::-1]
+    return data
 
+
+def process_data(data, tokens):
     for house in data:
-        house_data = extract_each_house(house)
+        house_data = extract_house_data(house)
         if house_data is None:
             continue
-        if house_data['token'] in tokens:
+        if house_data["token"] in tokens:
             continue
 
-        tokens.append(house_data['token'])
+        tokens.append(house_data["token"])
         send_telegram_message(house_data)
+        time.sleep(1)
+    return tokens
+
+
+if __name__ == "__main__":
+    logging.info(datetime.datetime.now())
+    tokens = load_tokens()
+    logging.info(len(tokens))
+    pages = [2, ""]
+    for page in pages:
+        data = get_data_page(page)
+        tokens = process_data(data, tokens)
 
     save_tokns(tokens)
