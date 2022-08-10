@@ -7,9 +7,16 @@ import time
 
 import requests
 
-URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(**os.environ)
+URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(
+    **os.environ)
 BOT_TOKEN = "{BOT_TOKEN}".format(**os.environ)
 BOT_CHATID = "{BOT_CHATID}".format(**os.environ)
+
+proxy_config = {}
+if os.environ.get("HTTP_PROXY", ""):
+    proxy_config["HTTP_PROXY"] = os.environ.get("HTTP_PROXY")
+if os.environ.get("HTTPS_PROXY", ""):
+    proxy_config["HTTPS_PROXY"] = os.environ.get("HTTPS_PROXY")
 
 TOKENS = list()
 
@@ -50,7 +57,7 @@ def send_telegram_message(house):
     text += f'<i>تصویر : </i> {"✅" if house["hasImage"] else "❌"}\n\n'
     text += f"https://divar.ir/v/a/{house['token']}"
     body = {"chat_id": BOT_CHATID, "parse_mode": "HTML", "text": text}
-    result = requests.post(url, data=body)
+    result = requests.post(url, data=body, proxies=proxy_config)
     if result.status_code == 429:
         time.sleep(random.randint(3, 7))
         send_telegram_message(house)
