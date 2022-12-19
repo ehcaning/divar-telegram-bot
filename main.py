@@ -15,8 +15,6 @@ BOT_CHATID = "{BOT_CHATID}".format(**os.environ)
 proxy_config = {}
 if os.environ.get("HTTP_PROXY", ""):
     proxy_config["HTTP_PROXY"] = os.environ.get("HTTP_PROXY")
-if os.environ.get("HTTPS_PROXY", ""):
-    proxy_config["HTTPS_PROXY"] = os.environ.get("HTTPS_PROXY")
 
 TOKENS = list()
 
