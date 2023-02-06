@@ -6,4 +6,4 @@ COPY run.sh /app/
 COPY main.py /app/
 # run crond as main process of container
 ENTRYPOINT [ "/app/run.sh" ]
-CMD ["python3", "-u", "main.py"]
+CMD ["python3", "main.py"]

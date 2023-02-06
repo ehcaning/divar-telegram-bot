@@ -29,7 +29,7 @@ def get_data(page=None):
     if page:
         api_url += f"&page={page}"
     response = requests.get(api_url)
-    logging.info("{} - Got response: {}".format(datetime.datetime.now(), response.code))
+    print("{} - Got response: {}".format(datetime.datetime.now(), response.status_code))
     return response
 
 
@@ -43,8 +43,7 @@ def get_houses_list(data):
 
 def extract_house_data(house):
     data = house["data"]
-    logging.info("raw house data: {}".format(data))
-
+    print("-> House {}: {}".format(data["token"], data))
     return {
         "title": data["title"],
         "description": f'{data["top_description_text"]} \n {data["middle_description_text"]}',
@@ -91,7 +90,6 @@ def get_data_page(page=None):
     data = parse_data(data)
     data = get_houses_list(data)
     data = data[::-1]
-    logging.info("Got data: {}".format(data))
     return data
 
 
@@ -104,16 +102,16 @@ def process_data(data, tokens):
             continue
 
         tokens.append(house_data["token"])
-        logging.info("sending to telegram token: {}".format(house_data["token"]))
+        print("sending to telegram token: {}".format(house_data["token"]))
         send_telegram_message(house_data)
         time.sleep(1)
     return tokens
 
 
 if __name__ == "__main__":
-    logging.info("Started at {}.".format(datetime.datetime.now()))
+    print("Started at {}.".format(datetime.datetime.now()))
     tokens = load_tokens()
-    logging.info("Tokens length: {}".format(len(tokens)))
+    print("Tokens length: {}".format(len(tokens)))
     pages = [""]
     while True:
         for page in pages:

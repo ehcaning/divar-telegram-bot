@@ -4,8 +4,10 @@ services:
   divartelegrambot:
     image: idebman/divartelegrambot
     build: .
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
-        - .env
+      - .env
     volumes:
       - type: bind
         source: <PATH_TO_YOUR_DIR>/tokens.json
