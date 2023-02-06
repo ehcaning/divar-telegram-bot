@@ -11,12 +11,15 @@ URL = "https://api.divar.ir/v8/web-search/{SEARCH_CONDITIONS}".format(
     **os.environ)
 BOT_TOKEN = "{BOT_TOKEN}".format(**os.environ)
 BOT_CHATID = "{BOT_CHATID}".format(**os.environ)
+SLEEP_SEC = "{SLEEP_SEC}".format(**os.environ)
 
 proxy_config = {}
 if os.environ.get("HTTP_PROXY", ""):
     proxy_config["HTTP_PROXY"] = os.environ.get("HTTP_PROXY")
 if os.environ.get("HTTPS_PROXY", ""):
     proxy_config["HTTPS_PROXY"] = os.environ.get("HTTPS_PROXY")
+if os.environ.get("ALL_PROXY", ""):
+    proxy_config["ALL_PROXY"] = os.environ.get("ALL_PROXY")
 
 TOKENS = list()
 
@@ -26,6 +29,7 @@ def get_data(page=None):
     if page:
         api_url += f"&page={page}"
     response = requests.get(api_url)
+    logging.info("{} - Got response: {}".format(datetime.datetime.now(), response.code))
     return response
 
 
@@ -39,6 +43,7 @@ def get_houses_list(data):
 
 def extract_house_data(house):
     data = house["data"]
+    logging.info("raw house data: {}".format(data))
 
     return {
         "title": data["title"],
@@ -86,6 +91,7 @@ def get_data_page(page=None):
     data = parse_data(data)
     data = get_houses_list(data)
     data = data[::-1]
+    logging.info("Got data: {}".format(data))
     return data
 
 
@@ -98,18 +104,20 @@ def process_data(data, tokens):
             continue
 
         tokens.append(house_data["token"])
+        logging.info("sending to telegram token: {}".format(house_data["token"]))
         send_telegram_message(house_data)
         time.sleep(1)
     return tokens
 
 
 if __name__ == "__main__":
-    logging.info(datetime.datetime.now())
+    logging.info("Started at {}.".format(datetime.datetime.now()))
     tokens = load_tokens()
-    logging.info(len(tokens))
-    pages = [2, ""]
-    for page in pages:
-        data = get_data_page(page)
-        tokens = process_data(data, tokens)
-
-    save_tokns(tokens)
+    logging.info("Tokens length: {}".format(len(tokens)))
+    pages = [""]
+    while True:
+        for page in pages:
+            data = get_data_page(page)
+            tokens = process_data(data, tokens)
+        save_tokns(tokens)
+        time.sleep(int(SLEEP_SEC))
