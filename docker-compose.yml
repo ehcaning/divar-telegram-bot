@@ -4,6 +4,7 @@ services:
   divartelegrambot:
     image: idebman/divartelegrambot
     build: .
+    restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
     env_file:
