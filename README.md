@@ -1,55 +1,60 @@
 # Divar Telegram Bot
 
-1- Open `@BotFather` in Telegram.
-2- Create a new bot and copy bot token. (Or use existing bot and copy bot token)
-```python
-BOT_TOKEN = '<BOT-TOKEN-HERE>'
-```
-3- Send a message to `@getidsbot` and response should be something like this:
-```text
-👤 You
- ├ id: 00000000
- ├ is_bot: false
- ├ first_name: Ehsan
- ├ last_name: Seyedi
- ├ username: _ (https://t.me/_)
- ├ language_code: en (-)
- └ created: ~ 2/2014 (?) (https://t.me/getidsbot?start=idhelp)
-```
-Copy `id` and paste here:
-```python
-BOT_CHATID = '<CHAT-ID-HERE>'
-```
+1. Clone the repository:
 
-4- Open your new (or old) bot (from step 2) and press `Start` (So bot can send you messages).
+    ``` shell
+    git clone https://github.com/debMan/divar-telegram-bot.git 
+    cd divar-telegram-bot
+    cp .env.sample .env
+    echo '[]' > tokens.json
+    # on Mac
+    gsed -ri 's|PATH_TO_YOUR_DIR|'"$PWD"'|g' docker-compose.yml 
+    # on GNU/Linux
+    # sed -ri 's|PATH_TO_YOUR_DIR|'"$PWD"'|g' docker-compose.yml 
+    ```
 
-5- Go to https://divar.ir/, select your city and go to desired category. Choose some search conditions like this:
+2. Open `@BotFather` in Telegram.
+3. Create a new bot, and place ist token (Or use an existing bot token) into the `.env` file.
 
-![Divar Search](img/search.png)
+    ``` shell
+    BOT_TOKEN = '<BOT-TOKEN-HERE>'
+    ```
 
-Web browser's URL should be something like this:
-```url
-https://divar.ir/s/mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90
-```
-Copy everything after `https://divar.ir/s/`, in this case it will be `mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90`
+4. Send a message to `@getidsbot` and the response should be something like this:
+Copy the `id` and paste it to `.env` file:
 
-And paste this here:
+    ``` shell
+    BOT_CHATID = '<CHAT-ID-HERE>'
+    ```
 
-```python
-URL = "https://api.divar.ir/v8/web-search/<SEARCH-CONDITIONS-HERE>"
-```
+5. Open your new (or old) bot (from step 2) and press `Start` (So the bot can send you messages).
 
-6- SSH to your server and make a cronjob to execute this code in which frequency you want.
+6. Go to https://divar.ir/, select your city and go to the desired category. Choose some search conditions like this:
 
-```bash
-crontab -e
-```
+    ![Divar Search](img/search.png)
 
-```crontab
-*/2 * * * * cd /root/divar_bot; /usr/bin/python3.8 main.py >> /dev/null 2>&1
-```
-* In this example, repository is in `/root/divar_bot` directory
-* This code will run every 2 minutes, if you need any help visit https://crontab.guru/
+    The web browser's URL should be something like this:
 
-## Final Result:
+    ```url
+    https://divar.ir/s/mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90
+    ```
+
+    Copy everything after `https://divar.ir/s/`, in this case, it will be `mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90`
+
+    So, paste this as `SEARCH_CONDITIONS` in the `.env` file:
+
+    ``` shell
+    SEARCH_CONDITIONS = "mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90"
+    ```
+
+7. Tune other parameters on `.env` file with your desired spec
+
+8. Run the service:
+
+    ``` shell
+    docker compose up --build -d
+    ```
+
+## Final Result
+
 ![Telegram Messages](img/preview.png)
