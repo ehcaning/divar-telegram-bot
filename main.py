@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 import os
 import random
 import time
@@ -55,12 +54,14 @@ def extract_house_data(house):
         title = data["title"]
         description = f'{data["top_description_text"]} \n {data["middle_description_text"]} \n {data["bottom_description_text"]} \n {subtitle}'
         hasImage = data["image_count"] > 0
+        images = [img['src'] for img in data['image_url'] ]
         token = data["token"]
         result = {
             "title": title,
             "description": description,
             "district": district,
             "hasImage": hasImage,
+            "images": images,
             "token": token,
         }
     else:
@@ -69,13 +70,24 @@ def extract_house_data(house):
 
 
 def send_telegram_message(house):
-    url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
     text = f"<b>{house['title']}</b>" + "\n"
     text += f"<i>{house['district']}</i>" + "\n"
     text += f"{house['description']}" + "\n"
     text += f'<i>تصویر : </i> {"✅" if house["hasImage"] else "❌"}\n\n'
     text += f"https://divar.ir/v/a/{house['token']}"
-    body = {"chat_id": BOT_CHATID, "parse_mode": "HTML", "text": text}
+    # request parameters
+    body = {"chat_id": BOT_CHATID, "parse_mode": "HTML"}
+    
+    # set the sending type : photo or only text
+    method = "sendMessage"
+    if house['hasImage']:
+        method = "sendPhoto"
+        body["photo"] = house['images'][0]
+        body["caption"] = text
+    else:
+        body["text"] = text
+    # the message text
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
     result = requests.post(url, data=body, proxies=proxy_config)
     if result.status_code == 429:
         time.sleep(random.randint(3, 7))
