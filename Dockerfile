@@ -1,6 +1,8 @@
-FROM python:3.7
+FROM python:3.10
+
+COPY requirements.txt /app/
 WORKDIR /app
-RUN apt-get update && pip install requests
+RUN python -m pip install -U pip && pip install -r requirements.txt
 RUN echo '[]' > /app/tokens.json
 COPY main.py /app/
 # run crond as main process of container

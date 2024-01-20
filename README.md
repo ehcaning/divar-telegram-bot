@@ -57,4 +57,4 @@ Copy the `id` and paste it to `.env` file:
 
 ## Final Result
 
-![Telegram Messages](img/preview.png)
+<img src="img/preview.png" title="" alt="" width="450">

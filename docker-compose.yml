@@ -11,5 +11,5 @@ services:
       - .env
     volumes:
       - type: bind
-        source: PATH_TO_YOUR_DIR/tokens.json
+        source: ./tokens.json
         target: /app/tokens.json
