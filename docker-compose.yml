@@ -2,8 +2,8 @@ version: '3.4'
 
 services:
   divartelegrambot:
-    image: idebman/divartelegrambot
-    build: .
+    image: idebman/divar-telegram-bot:develop
+    # build: .
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1

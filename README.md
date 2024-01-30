@@ -1,60 +1,78 @@
 # Divar Telegram Bot
 
-1. Clone the repository:
+ A simple crawler and notifier of divar.ir advertisements, based on pre-defined conditions.
 
-    ``` shell
-    git clone https://github.com/debMan/divar-telegram-bot.git 
-    cd divar-telegram-bot
-    cp .env.sample .env
-    echo '[]' > tokens.json
-    # on Mac
-    gsed -ri 's|PATH_TO_YOUR_DIR|'"$PWD"'|g' docker-compose.yml 
-    # on GNU/Linux
-    # sed -ri 's|PATH_TO_YOUR_DIR|'"$PWD"'|g' docker-compose.yml 
-    ```
+## Introduction
 
-2. Open `@BotFather` in Telegram.
-3. Create a new bot, and place ist token (Or use an existing bot token) into the `.env` file.
+This telegram bot notifies you whenever a new ad appears in the specified topic on [Divar](https://divar.ir), an Iranian Persian classified ads and E-commerce app.
 
-    ``` shell
-    BOT_TOKEN = '<BOT-TOKEN-HERE>'
-    ```
+## Usage
 
-4. Send a message to `@getidsbot` and the response should be something like this:
-Copy the `id` and paste it to `.env` file:
+### Pre-requisites
 
-    ``` shell
-    BOT_CHATID = '<CHAT-ID-HERE>'
-    ```
+1. Open `@BotFather` in Telegram, create a new bot, and note its token (Or use an existing bot token) to use in the `.env` file later.
+2. Send a message to `@getidsbot` and the response should be something like this:
 
-5. Open your new (or old) bot (from step 2) and press `Start` (So the bot can send you messages).
+   ``` text
+   👤 You
+   ├ id: 00000000
+   ├ is_bot: false
+   ├ first_name: Ehsan
+   ├ last_name: Seyedi
+   ├ username: _ (https://t.me/_)
+   ├ language_code: en (-)
+   └ created: ~ 2/2014 (?) (https://t.me/getidsbot?start=idhelp)
+   ```
 
-6. Go to https://divar.ir/, select your city and go to the desired category. Choose some search conditions like this:
+   Note the `id` to use in the `.env` file later.
+3. Open your bot (from step 1) and press **Start** (So the bot can send messages to your account chat).
+4. Visit the [Divar](https://divar.ir), select your city, and go to the desired category. Choose some search conditions like this:
+   ![Divar Search](img/search.png)
+   The web browser's URL should be something like this:
 
-    ![Divar Search](img/search.png)
+   ``` url
+   https://divar.ir/s/tehran/rent-residential/abshar?size=65-120
+   ```
 
-    The web browser's URL should be something like this:
+   Note everything after `https://divar.ir/s/`, in this case, it will be `tehran/rent-residential/abshar?size=65-120`, to use in the `.env` file later like this:
 
-    ```url
-    https://divar.ir/s/mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90
-    ```
+   ``` shell
+   SEARCH_CONDITIONS = "tehran/rent-residential/abshar?size=65-120"
+   ```
 
-    Copy everything after `https://divar.ir/s/`, in this case, it will be `mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90`
+### Local
 
-    So, paste this as `SEARCH_CONDITIONS` in the `.env` file:
+``` shell
+git clone https://github.com/debMan/divar-telegram-bot.git 
+cd divar-telegram-bot
+cp .env.sample .env
+# edit .env file with datas from Pre-requisites step
+editor .env
+echo '[]' > tokens.json
+pip install -r requirements.txt
+./main.py
+```
 
-    ``` shell
-    SEARCH_CONDITIONS = "mashhad/rent-residential/janbaz?districts=1124%2C442&credit=-100000000&rent=-3000000&size=-90"
-    ```
+### Docker
 
-7. Tune other parameters on `.env` file with your desired spec
+``` shell
+git clone https://github.com/debMan/divar-telegram-bot.git 
+cd divar-telegram-bot
+cp .env.sample .env
+# edit .env file with datas from Pre-requisites step
+editor .env
+echo '[]' > tokens.json
+docker compose up -d
+```
 
-8. Run the service:
+### Development
 
-    ``` shell
-    docker compose up --build -d
-    ```
+To run the crawler in development mode, simply follow the [Local](#Local) or [Docker](#Local) instructions with an uncommented `build: .` line in the [`docker-compose.yml`](docker-compose.yml) file, then:
+
+``` shell
+docker compose up --build 
+```
 
 ## Final Result
 
-<img src="img/preview.png" title="" alt="" width="450">
+![Divar Search](img/preview.png)
