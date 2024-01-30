@@ -27,7 +27,9 @@ This telegram bot notifies you whenever a new ad appears in the specified topic 
    Note the `id` to use in the `.env` file later.
 3. Open your bot (from step 1) and press **Start** (So the bot can send messages to your account chat).
 4. Visit the [Divar](https://divar.ir), select your city, and go to the desired category. Choose some search conditions like this:
+
    ![Divar Search](img/search.png)
+
    The web browser's URL should be something like this:
 
    ``` url
