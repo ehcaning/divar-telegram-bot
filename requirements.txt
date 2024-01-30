@@ -1,0 +1,4 @@
+requests
+python-telegram-bot==20.4
+python-telegram-bot[socks]
+pydantic==2.3.0

@@ -1,11 +1,10 @@
-FROM python:3.7
-RUN apt-get update && apt-get -y install cron vim python3-requests
-WORKDIR /app
-COPY crontab /etc/cron.d/crontab
-COPY main.py run.sh tokens.json /app/
-RUN chmod 0644 /etc/cron.d/crontab
-RUN /usr/bin/crontab /etc/cron.d/crontab
+FROM python:3.10
 
+COPY requirements.txt /app/
+WORKDIR /app
+RUN python -m pip install -U pip && pip install -r requirements.txt
+RUN echo '[]' > /app/tokens.json
+COPY main.py /app/
 # run crond as main process of container
-ENTRYPOINT [ "/app/run.sh" ]
-CMD ["cron","-f", "-l", "2"]
+ENTRYPOINT [ "python3" ]
+CMD ["main.py"]

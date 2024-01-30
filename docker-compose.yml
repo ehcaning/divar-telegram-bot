@@ -2,9 +2,14 @@ version: '3.4'
 
 services:
   divartelegrambot:
-    image: divartelegrambot
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: idebman/divar-telegram-bot:develop
+    # build: .
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
-        - ./.env
+      - .env
+    volumes:
+      - type: bind
+        source: ./tokens.json
+        target: /app/tokens.json

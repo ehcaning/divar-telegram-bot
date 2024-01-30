@@ -1,11 +1,17 @@
-config.yml
-config.yaml
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+sample
 tokens.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+config.yml
+config.yaml
 
 # C extensions
 *.so
