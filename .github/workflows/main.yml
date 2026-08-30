@@ -1,0 +1,36 @@
+name: Test Divar Connection
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 5 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Python
+        run: python --version
+
+      - name: Check Divar
+        run: |
+          python - <<'PY'
+          import requests
+
+          url = "https://divar.ir/s/isfahan"
+
+          headers = {
+              "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36"
+          }
+
+          response = requests.get(url, headers=headers, timeout=30)
+
+          print("HTTP Status:", response.status_code)
+          print("Content Length:", len(response.text))
+
+          if response.status_code == 200:
+              print("SUCCESS: GitHub Actions can reach Divar")
+          else:
+              print("WARNING: Divar returned:", response.status_code)
+          PY
